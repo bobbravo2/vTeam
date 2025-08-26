@@ -408,6 +408,7 @@ class CostTracker:
         """Log when a response was served from cache"""
         if self._activity_tracker:
             from ai_models.activity_tracker import ActivityType
+
             self._activity_tracker.log_activity(
                 activity_type=ActivityType.COST_OPTIMIZATION,
                 action="cache_hit",
@@ -427,6 +428,7 @@ class CostTracker:
         savings_percent = (original_tokens - optimized_tokens) / original_tokens * 100
         if self._activity_tracker:
             from ai_models.activity_tracker import ActivityType
+
             self._activity_tracker.log_activity(
                 activity_type=ActivityType.COST_OPTIMIZATION,
                 action="prompt_optimized",

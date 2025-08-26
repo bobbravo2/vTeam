@@ -280,11 +280,14 @@ class ActivityTracker:
             action=f"{interaction_type}_to_{to_agent.value}",
             agent_role=from_agent,
             rfe_id=rfe_id,
-            context=dict({
-                "to_agent": to_agent.value,
-                "interaction_type": interaction_type,
-                "message": message,
-            }, **(context or {})),
+            context=dict(
+                {
+                    "to_agent": to_agent.value,
+                    "interaction_type": interaction_type,
+                    "message": message,
+                },
+                **(context or {}),
+            ),
         )
 
         return interaction
