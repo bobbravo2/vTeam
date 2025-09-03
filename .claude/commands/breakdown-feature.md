@@ -1,15 +1,26 @@
-Break down a Jira feature into Epics and Stories for any project (unrelated to this repository).
+Break down a Jira feature into Epics and Stories for any project (unrelated to this repository). Determine project details in step 0.
 
 ## Process:
 
-### Step 1: Create Structural Outline
+### Step 0: Tech Stack Inference
 1. **Fetch Feature**: Get feature details using Jira issue key
-2. **Get Context**: Ask user for project's tech stack, architecture, and constraints
-3. **Create Placeholder Epics**: Use stella agent for initial draft of 3-7 Epics with empty placeholder Jira issues, linked as children to the passed Jira issue
-4. **Olivia Review**: Have olivia agent review epic structure and provide specific suggested changes
-5. **Lee Review**: Have lee agent review epic structure and provide specific suggested changes
-6. **Taylor Review**: Have taylor agent review epic structure and provide specific suggested changes
-7. **Final Structure**: Have stella agent incorporate feedback and do final refinement of the epic structure
+2. **Identify Components**: Analyze feature description and labels to identify involved Jira components
+3. **Map to Repositories**: Use component-to-repository mapping to identify relevant GitHub repositories in opendatahub-io organization
+4. **Analyze Tech Stack**: Examine identified repositories to determine:
+   - Programming languages (package.json, requirements.txt, go.mod, etc.)
+   - Frameworks and libraries
+   - Build tools and dependencies
+   - Deployment patterns (Kubernetes operators, containers, etc.)
+   - Testing frameworks
+5. **Synthesize Context**: Create comprehensive tech stack summary for informed epic/story creation
+
+### Step 1: Create Structural Outline
+1. **Get Additional Context**: Ask user for any additional project constraints or preferences not captured in tech stack analysis
+2. **Create Placeholder Epics**: Use stella agent for initial draft of 3-7 Epics with empty placeholder Jira issues, linked as children to the passed Jira issue
+3. **Olivia Review**: Have olivia agent review epic structure and provide specific suggested changes
+4. **Lee Review**: Have lee agent review epic structure and provide specific suggested changes
+5. **Taylor Review**: Have taylor agent review epic structure and provide specific suggested changes
+6. **Final Structure**: Have stella agent incorporate feedback and do final refinement of the epic structure
 
 ### Step 2: Write User Stories
 1. **Initial Draft**: Use lee agent to create user stories for the placeholder issues created in Step 1
