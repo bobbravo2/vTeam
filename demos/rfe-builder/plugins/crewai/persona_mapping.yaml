@@ -1,0 +1,243 @@
+# CrewAI persona mapping configuration
+# Maps RFE agent personas to CrewAI crew roles and hierarchical positions
+
+persona_mappings:
+  PRODUCT_MANAGER:
+    agent_id: "product_strategy_crew_member"
+    framework_role: "senior_crew_member"
+    description: "Product strategy and business analysis crew member"
+    hierarchy_level: "senior"
+    capabilities:
+      - "product_strategy"
+      - "market_research"
+      - "business_analysis"
+      - "stakeholder_coordination"
+    crew_responsibilities:
+      - "strategy_definition"
+      - "requirement_prioritization"
+      - "business_case_validation"
+
+  STAFF_ENGINEER:
+    agent_id: "technical_architecture_crew_member"
+    framework_role: "lead_crew_member"
+    description: "Technical architecture and implementation leadership crew member"
+    hierarchy_level: "lead"
+    capabilities:
+      - "technical_architecture"
+      - "system_design"
+      - "implementation_guidance"
+      - "technical_mentoring"
+    crew_responsibilities:
+      - "architecture_design"
+      - "technical_decision_making"
+      - "implementation_oversight"
+
+  UX_RESEARCHER:
+    agent_id: "user_research_crew_member"
+    framework_role: "specialist_crew_member"
+    description: "User research and insights crew member"
+    hierarchy_level: "specialist"
+    capabilities:
+      - "user_research"
+      - "behavioral_analysis"
+      - "insight_synthesis"
+      - "research_methodology"
+    crew_responsibilities:
+      - "user_insight_generation"
+      - "research_planning"
+      - "data_collection_coordination"
+
+  UX_ARCHITECT:
+    agent_id: "design_architecture_crew_member"
+    framework_role: "senior_crew_member"
+    description: "Design system architecture and UX strategy crew member"
+    hierarchy_level: "senior"
+    capabilities:
+      - "design_system_architecture"
+      - "user_experience_strategy"
+      - "information_architecture"
+      - "design_governance"
+    crew_responsibilities:
+      - "design_system_planning"
+      - "ux_strategy_definition"
+      - "design_standards_establishment"
+
+  UX_FEATURE_LEAD:
+    agent_id: "feature_design_crew_member"
+    framework_role: "specialist_crew_member"
+    description: "Feature design and component specification crew member"
+    hierarchy_level: "specialist"
+    capabilities:
+      - "feature_design"
+      - "component_specification"
+      - "interaction_design"
+      - "design_implementation_guidance"
+    crew_responsibilities:
+      - "feature_specification"
+      - "component_design"
+      - "design_implementation_support"
+
+  UX_TEAM_LEAD:
+    agent_id: "design_coordination_crew_member"
+    framework_role: "lead_crew_member"
+    description: "Design team coordination and quality assurance crew member"
+    hierarchy_level: "lead"
+    capabilities:
+      - "design_team_coordination"
+      - "quality_assurance"
+      - "design_review"
+      - "process_optimization"
+    crew_responsibilities:
+      - "design_quality_oversight"
+      - "team_coordination"
+      - "design_process_management"
+
+  TEAM_LEAD:
+    agent_id: "technical_coordination_crew_member"
+    framework_role: "lead_crew_member"
+    description: "Technical team coordination and delivery execution crew member"
+    hierarchy_level: "lead"
+    capabilities:
+      - "team_coordination"
+      - "technical_planning"
+      - "delivery_execution"
+      - "cross_team_communication"
+    crew_responsibilities:
+      - "technical_team_leadership"
+      - "delivery_coordination"
+      - "technical_planning_execution"
+
+  TEAM_MEMBER:
+    agent_id: "implementation_crew_member"
+    framework_role: "junior_crew_member"
+    description: "Implementation and development execution crew member"
+    hierarchy_level: "junior"
+    capabilities:
+      - "code_implementation"
+      - "feature_development"
+      - "testing_execution"
+      - "documentation_creation"
+    crew_responsibilities:
+      - "feature_implementation"
+      - "code_development"
+      - "quality_assurance_execution"
+
+  DELIVERY_OWNER:
+    agent_id: "cross_team_delivery_crew_member"
+    framework_role: "senior_crew_member"
+    description: "Cross-team coordination and milestone management crew member"
+    hierarchy_level: "senior"
+    capabilities:
+      - "cross_team_coordination"
+      - "dependency_management"
+      - "milestone_tracking"
+      - "delivery_planning"
+    crew_responsibilities:
+      - "delivery_coordination"
+      - "dependency_resolution"
+      - "milestone_management"
+
+  ENGINEERING_MANAGER:
+    agent_id: "engineering_leadership_crew_member"
+    framework_role: "manager_crew_member"
+    description: "Engineering team strategy and wellbeing crew member"
+    hierarchy_level: "manager"
+    capabilities:
+      - "team_strategy"
+      - "capacity_planning"
+      - "team_wellbeing"
+      - "strategic_alignment"
+    crew_responsibilities:
+      - "team_strategic_planning"
+      - "resource_coordination"
+      - "team_development"
+
+  SCRUM_MASTER:
+    agent_id: "agile_facilitation_crew_member"
+    framework_role: "facilitator_crew_member"
+    description: "Agile process facilitation and optimization crew member"
+    hierarchy_level: "facilitator"
+    capabilities:
+      - "agile_facilitation"
+      - "process_optimization"
+      - "impediment_removal"
+      - "team_coaching"
+    crew_responsibilities:
+      - "process_facilitation"
+      - "team_coaching"
+      - "continuous_improvement"
+
+  TECHNICAL_WRITER:
+    agent_id: "documentation_crew_member"
+    framework_role: "specialist_crew_member"
+    description: "Technical documentation and content creation crew member"
+    hierarchy_level: "specialist"
+    capabilities:
+      - "technical_documentation"
+      - "content_creation"
+      - "procedure_validation"
+      - "user_guidance_development"
+    crew_responsibilities:
+      - "documentation_creation"
+      - "content_quality_assurance"
+      - "user_guidance_development"
+
+  TECHNICAL_WRITING_MANAGER:
+    agent_id: "documentation_leadership_crew_member"
+    framework_role: "manager_crew_member"
+    description: "Documentation strategy and team coordination crew member"
+    hierarchy_level: "manager"
+    capabilities:
+      - "documentation_strategy"
+      - "content_planning"
+      - "team_coordination"
+      - "quality_standards_management"
+    crew_responsibilities:
+      - "documentation_strategy_planning"
+      - "content_team_coordination"
+      - "quality_standards_enforcement"
+
+  DOCUMENTATION_PROGRAM_MANAGER:
+    agent_id: "content_program_crew_member"
+    framework_role: "manager_crew_member"
+    description: "Content program management and resource coordination crew member"
+    hierarchy_level: "manager"
+    capabilities:
+      - "program_management"
+      - "resource_allocation"
+      - "strategic_content_planning"
+      - "cross_functional_coordination"
+    crew_responsibilities:
+      - "content_program_coordination"
+      - "resource_optimization"
+      - "strategic_alignment"
+
+  CONTENT_STRATEGIST:
+    agent_id: "content_strategy_crew_member"
+    framework_role: "senior_crew_member"
+    description: "Content strategy and information architecture crew member"
+    hierarchy_level: "senior"
+    capabilities:
+      - "content_strategy"
+      - "information_architecture"
+      - "content_standards_development"
+      - "effectiveness_measurement"
+    crew_responsibilities:
+      - "content_strategy_development"
+      - "information_architecture_design"
+      - "content_effectiveness_optimization"
+
+  PXE:
+    agent_id: "product_experience_crew_member"
+    framework_role: "specialist_crew_member"
+    description: "Product experience engineering and customer impact crew member"
+    hierarchy_level: "specialist"
+    capabilities:
+      - "customer_impact_analysis"
+      - "product_lifecycle_management"
+      - "field_experience_monitoring"
+      - "telemetry_analysis"
+    crew_responsibilities:
+      - "customer_experience_optimization"
+      - "product_lifecycle_coordination"
+      - "field_feedback_integration"

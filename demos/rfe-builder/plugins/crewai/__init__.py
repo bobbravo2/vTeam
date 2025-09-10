@@ -1,0 +1,1 @@
+"""CrewAI plugin for AI agent collaboration using hierarchical structure."""

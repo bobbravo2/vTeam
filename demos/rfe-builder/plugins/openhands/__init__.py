@@ -1,0 +1,1 @@
+"""OpenHands plugin for code generation and task execution."""

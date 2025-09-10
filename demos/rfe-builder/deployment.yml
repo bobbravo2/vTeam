@@ -32,6 +32,46 @@ services:
       - pyyaml>=6.0
       - python-dotenv>=1.0.0
 
+  openhands-plugin:
+    name: OpenHands Plugin
+    description: OpenHands code generation and task execution for implementation phase
+    source:
+      type: local
+      name: plugins/openhands
+    path: plugins/openhands/openhands_plugin:create_openhands_workflow
+    python-dependencies:
+      - openhands-ai>=0.56.0
+      - llama-index-core>=0.12.0
+      - pyyaml>=6.0
+      - python-dotenv>=1.0.0
+    
+  langchain-plugin:
+    name: LangChain Plugin  
+    description: LangGraph workflows, agents, tools, chains mirroring 7-agent council
+    source:
+      type: local
+      name: plugins/langchain
+    path: plugins/langchain/langchain_plugin:create_langchain_workflow
+    python-dependencies:
+      - langchain>=0.1.0
+      - langgraph>=0.1.0
+      - llama-index-core>=0.12.0
+      - pyyaml>=6.0
+      - python-dotenv>=1.0.0
+
+  crewai-plugin:
+    name: CrewAI Plugin
+    description: AI agent collaboration using default hierarchical structure
+    source:
+      type: local
+      name: plugins/crewai
+    path: plugins/crewai/crewai_plugin:create_crewai_workflow
+    python-dependencies:
+      - crewai>=0.30.0
+      - llama-index-core>=0.12.0
+      - pyyaml>=6.0
+      - python-dotenv>=1.0.0
+
 
 ui:
   name: Chat UI

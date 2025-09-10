@@ -1,0 +1,229 @@
+# OpenHands persona mapping configuration
+# Maps RFE agent personas to OpenHands-specific agent roles and capabilities
+
+persona_mappings:
+  PRODUCT_MANAGER:
+    agent_id: "product_strategist"
+    framework_role: "planning_agent"
+    description: "Analyze business requirements and create implementation strategy"
+    capabilities:
+      - "requirement_analysis"
+      - "business_case_creation"
+      - "mvp_planning"
+      - "stakeholder_communication"
+    tools:
+      - "web_search"
+      - "document_generator"
+      - "planning_tools"
+
+  STAFF_ENGINEER:
+    agent_id: "senior_developer"
+    framework_role: "coding_agent"
+    description: "Technical architecture and implementation leadership"
+    capabilities:
+      - "code_generation"
+      - "system_design"
+      - "technical_review"
+      - "architecture_planning"
+    tools:
+      - "code_generator"
+      - "file_editor"
+      - "terminal"
+      - "git_tools"
+
+  UX_RESEARCHER:
+    agent_id: "user_researcher"
+    framework_role: "research_agent"
+    description: "Analyze user needs and research requirements"
+    capabilities:
+      - "user_analysis"
+      - "requirements_gathering"
+      - "usability_testing"
+      - "research_synthesis"
+    tools:
+      - "web_search"
+      - "document_analyzer"
+      - "survey_tools"
+
+  UX_ARCHITECT:
+    agent_id: "ux_designer"
+    framework_role: "design_agent"
+    description: "Design system architecture and user experience strategy"
+    capabilities:
+      - "information_architecture"
+      - "design_systems"
+      - "user_journey_mapping"
+      - "accessibility_planning"
+    tools:
+      - "design_tools"
+      - "prototyping"
+      - "documentation_generator"
+
+  UX_FEATURE_LEAD:
+    agent_id: "feature_designer"
+    framework_role: "design_agent"
+    description: "Component design and feature specification"
+    capabilities:
+      - "component_design"
+      - "feature_specification"
+      - "interaction_design"
+      - "design_documentation"
+    tools:
+      - "design_tools"
+      - "component_generator"
+      - "specification_tools"
+
+  UX_TEAM_LEAD:
+    agent_id: "design_coordinator"
+    framework_role: "coordination_agent"
+    description: "Design team coordination and quality assurance"
+    capabilities:
+      - "design_review"
+      - "team_coordination"
+      - "quality_assurance"
+      - "design_standards"
+    tools:
+      - "review_tools"
+      - "coordination_tools"
+      - "quality_checkers"
+
+  TEAM_LEAD:
+    agent_id: "technical_coordinator"
+    framework_role: "coordination_agent"
+    description: "Technical team coordination and delivery management"
+    capabilities:
+      - "team_coordination"
+      - "technical_planning"
+      - "risk_management"
+      - "delivery_tracking"
+    tools:
+      - "project_management"
+      - "coordination_tools"
+      - "tracking_tools"
+
+  TEAM_MEMBER:
+    agent_id: "developer"
+    framework_role: "coding_agent"
+    description: "Implementation and development execution"
+    capabilities:
+      - "code_implementation"
+      - "testing"
+      - "debugging"
+      - "documentation"
+    tools:
+      - "code_generator"
+      - "file_editor"
+      - "terminal"
+      - "testing_tools"
+
+  DELIVERY_OWNER:
+    agent_id: "delivery_manager"
+    framework_role: "coordination_agent"
+    description: "Cross-team coordination and milestone management"
+    capabilities:
+      - "dependency_tracking"
+      - "milestone_management"
+      - "cross_team_coordination"
+      - "delivery_planning"
+    tools:
+      - "project_management"
+      - "tracking_tools"
+      - "communication_tools"
+
+  ENGINEERING_MANAGER:
+    agent_id: "engineering_lead"
+    framework_role: "management_agent"
+    description: "Team wellbeing and strategic planning coordination"
+    capabilities:
+      - "team_management"
+      - "capacity_planning"
+      - "strategic_alignment"
+      - "resource_coordination"
+    tools:
+      - "management_tools"
+      - "planning_tools"
+      - "communication_tools"
+
+  SCRUM_MASTER:
+    agent_id: "agile_facilitator"
+    framework_role: "coordination_agent"
+    description: "Agile facilitation and process optimization"
+    capabilities:
+      - "agile_facilitation"
+      - "impediment_removal"
+      - "process_optimization"
+      - "team_coaching"
+    tools:
+      - "facilitation_tools"
+      - "process_tools"
+      - "communication_tools"
+
+  TECHNICAL_WRITER:
+    agent_id: "documentation_specialist"
+    framework_role: "documentation_agent"
+    description: "User-centered documentation and technical communication"
+    capabilities:
+      - "technical_writing"
+      - "documentation_creation"
+      - "content_validation"
+      - "user_guidance"
+    tools:
+      - "document_generator"
+      - "content_tools"
+      - "validation_tools"
+
+  TECHNICAL_WRITING_MANAGER:
+    agent_id: "documentation_lead"
+    framework_role: "management_agent"
+    description: "Documentation strategy and team coordination"
+    capabilities:
+      - "documentation_strategy"
+      - "content_planning"
+      - "team_coordination"
+      - "quality_standards"
+    tools:
+      - "planning_tools"
+      - "coordination_tools"
+      - "quality_tools"
+
+  DOCUMENTATION_PROGRAM_MANAGER:
+    agent_id: "content_program_manager"
+    framework_role: "management_agent"
+    description: "Content roadmap planning and resource allocation"
+    capabilities:
+      - "program_management"
+      - "resource_allocation"
+      - "roadmap_planning"
+      - "strategic_coordination"
+    tools:
+      - "program_management"
+      - "planning_tools"
+      - "resource_tools"
+
+  CONTENT_STRATEGIST:
+    agent_id: "content_strategist"
+    framework_role: "planning_agent"
+    description: "Information architecture and content standards"
+    capabilities:
+      - "content_strategy"
+      - "information_architecture"
+      - "content_standards"
+      - "effectiveness_measurement"
+    tools:
+      - "strategy_tools"
+      - "content_tools"
+      - "measurement_tools"
+
+  PXE:
+    agent_id: "product_experience_engineer"
+    framework_role: "analysis_agent"
+    description: "Customer impact assessment and lifecycle management"
+    capabilities:
+      - "customer_impact_assessment"
+      - "lifecycle_management"
+      - "field_experience_analysis"
+      - "upgrade_planning"
+    tools:
+      - "analysis_tools"
+      - "monitoring_tools"
+      - "planning_tools"
