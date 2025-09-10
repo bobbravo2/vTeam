@@ -1,7 +1,7 @@
 # Multi-stage build for RHOAI AI Feature Sizing with LlamaDeploy
 # For Apple Silicon Macs use: linux/arm64
 # For Intel Macs use: linux/amd64
-FROM --platform=linux/amd64 python:3.11-slim AS base
+FROM --platform=linux/arm64 python:3.13-slim AS base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
