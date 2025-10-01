@@ -49,7 +49,31 @@ The platform consists of containerized microservices orchestrated via Kubernetes
 
 ## Quick Start
 
-### 1. Deploy to OpenShift
+### Local Development (Recommended for Getting Started)
+
+**🎉 Complete local development environment with full operator integration:**
+
+```bash
+# 1. Install prerequisites
+brew install crc  # Get pull secret from console.redhat.com/openshift/create/local
+
+# 2. Start complete environment (backend + frontend + operator)
+make dev-start
+
+# 3. Verify all components working (24/24 tests)
+make dev-test
+```
+
+**What you get:**
+- ✅ Full vTeam platform running locally in CRC
+- ✅ Create and test AgenticSessions end-to-end
+- ✅ Operator managing job execution and status updates
+- ✅ Real backend API connections (no more connection errors!)
+- ✅ Hot-reloading development mode available
+
+See [Local Development Guide](components/scripts/local-dev/README.md) for details.
+
+### 1. Deploy to Production OpenShift
 
 Deploy using the default images from `quay.io/ambient_code`:
 

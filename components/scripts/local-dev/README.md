@@ -1,6 +1,6 @@
 # vTeam Local Development
 
-> **🎉 STATUS: FULLY WORKING** - Project creation, authentication
+> **🎉 STATUS: FULLY WORKING** - Complete local development with operator integration
 
 ## Quick Start
 
@@ -28,7 +28,7 @@ make dev-start
 
 ### 4. Verify Everything Works
 ```bash
-make dev-test  # Should show 11/12 tests passing
+make dev-test  # Should show 24/24 tests passing (includes operator tests)
 ```
 
 ## Hot-Reloading Development
@@ -45,14 +45,55 @@ make dev-sync
 
 ```bash
 # Day-to-day workflow
-make dev-start          # Start environment
-make dev-test           # Run tests
+make dev-start          # Start environment (backend + frontend + operator)
+make dev-test           # Run tests (24 tests including operator)
 make dev-stop           # Stop (keep CRC running)
+
+# Operator management
+make dev-logs-operator     # View operator logs
+make dev-restart-operator  # Restart operator deployment
+make dev-operator-status   # Check operator status and events
 
 # Troubleshooting
 make dev-clean          # Delete project, fresh start
 crc status              # Check CRC status
 oc get pods -n vteam-dev # Check pod status
+```
+
+## Operator Integration
+
+The local development environment now includes the **vTeam operator** that manages AgenticSession workflows:
+
+- ✅ **Fully integrated**: Operator builds and deploys automatically with `make dev-start`
+- ✅ **End-to-end testing**: Create AgenticSessions and watch them execute locally
+- ✅ **Real backend connections**: Operator connects to local backend service
+- ✅ **Complete test coverage**: 12 operator-specific tests (24 total tests)
+
+### Testing AgenticSessions Locally
+
+```bash
+# Create a test session
+cat <<EOF | oc apply -f -
+apiVersion: vteam.ambient-code/v1alpha1
+kind: AgenticSession
+metadata:
+  name: my-test-session
+  namespace: vteam-dev
+spec:
+  prompt: "echo 'Hello from local dev!'"
+  timeout: 300
+  interactive: false
+  llmSettings:
+    model: "claude-sonnet-4-20250514"
+    temperature: 0.7
+    maxTokens: 4096
+EOF
+
+# Watch the operator create and manage the job
+oc get jobs -n vteam-dev -w
+
+# View session status updates
+oc get agenticsession my-test-session -n vteam-dev -o yaml
 ```
 
 ## System Requirements
