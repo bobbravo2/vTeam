@@ -83,66 +83,135 @@ push-all: ## Push all images to registry
 	$(CONTAINER_ENGINE) push $(REGISTRY)/$(OPERATOR_IMAGE)
 	$(CONTAINER_ENGINE) push $(REGISTRY)/$(RUNNER_IMAGE)
 
-# Local dev helpers (OpenShift Local/CRC-based)
-dev-start: ## Start local dev (CRC + OpenShift + backend + frontend)
-	@bash components/scripts/local-dev/crc-start.sh
+# Local development with minikube
+NAMESPACE ?= ambient-code
 
-dev-stop: ## Stop local dev processes
-	@bash components/scripts/local-dev/crc-stop.sh
-
-dev-test: ## Run local dev smoke tests
-	@bash components/scripts/local-dev/crc-test.sh
-
-# Additional CRC options
-dev-stop-cluster: ## Stop local dev and shutdown CRC cluster
-	@bash components/scripts/local-dev/crc-stop.sh --stop-cluster
-
-dev-clean: ## Stop local dev and delete OpenShift project  
-	@bash components/scripts/local-dev/crc-stop.sh --delete-project
-
-# Development mode with hot-reloading
-dev-start-hot: ## Start local dev with hot-reloading enabled
-	@DEV_MODE=true bash components/scripts/local-dev/crc-start.sh
-
-dev-sync: ## Start file sync for hot-reloading (run in separate terminal)
-	@bash components/scripts/local-dev/crc-dev-sync.sh both
-
-dev-sync-backend: ## Sync only backend files
-	@bash components/scripts/local-dev/crc-dev-sync.sh backend
-
-dev-sync-frontend: ## Sync only frontend files
-	@bash components/scripts/local-dev/crc-dev-sync.sh frontend
-
-dev-logs: ## Show logs for both backend and frontend
-	@echo "Backend logs:"
-	@oc logs -f deployment/vteam-backend -n vteam-dev --tail=20 &
-	@echo -e "\n\nFrontend logs:"
-	@oc logs -f deployment/vteam-frontend -n vteam-dev --tail=20
-
-dev-logs-backend: ## Show backend logs with Air output
-	@oc logs -f deployment/vteam-backend -n vteam-dev
-
-dev-logs-frontend: ## Show frontend logs with Next.js output
-	@oc logs -f deployment/vteam-frontend -n vteam-dev
-
-dev-logs-operator: ## Show operator logs
-	@oc logs -f deployment/vteam-operator -n vteam-dev
-
-dev-restart-operator: ## Restart operator deployment
-	@echo "Restarting operator..."
-	@oc rollout restart deployment/vteam-operator -n vteam-dev
-	@oc rollout status deployment/vteam-operator -n vteam-dev --timeout=60s
-
-dev-operator-status: ## Show operator status and recent events
-	@echo "Operator Deployment Status:"
-	@oc get deployment vteam-operator -n vteam-dev
+local-start: ## Start minikube and deploy vTeam
+	@command -v minikube >/dev/null || (echo "❌ Please install minikube first: https://minikube.sigs.k8s.io/docs/start/" && exit 1)
+	@echo "🚀 Starting minikube..."
+	@minikube start --memory=4096 --cpus=2 || true
+	@echo "📦 Enabling required addons..."
+	@minikube addons enable ingress
+	@minikube addons enable storage-provisioner
+	@echo "🏗️  Building images in minikube..."
+	@eval $$(minikube docker-env) && \
+		docker build -t vteam-backend:latest components/backend && \
+		docker build -t vteam-frontend:latest components/frontend && \
+		docker build -t vteam-operator:latest components/operator
+	@echo "📋 Creating namespace..."
+	@kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
+	@echo "🔧 Deploying CRDs..."
+	@kubectl apply -f components/manifests/crds/ || true
+	@echo "🔐 Deploying RBAC..."
+	@kubectl apply -f components/manifests/rbac/ || true
+	@echo "💾 Creating PVCs..."
+	@kubectl apply -f components/manifests/workspace-pvc.yaml -n $(NAMESPACE) || true
+	@echo "🚀 Deploying backend..."
+	@kubectl apply -f components/manifests/minikube/backend-deployment.yaml
+	@kubectl apply -f components/manifests/minikube/backend-service.yaml
+	@echo "🌐 Deploying frontend..."
+	@kubectl apply -f components/manifests/minikube/frontend-deployment.yaml
+	@kubectl apply -f components/manifests/minikube/frontend-service.yaml
+	@echo "🤖 Deploying operator..."
+	@kubectl apply -f components/manifests/minikube/operator-deployment.yaml
+	@echo "🌍 Creating ingress..."
+	@echo "   Waiting for ingress controller to be ready..."
+	@kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s || true
+	@kubectl apply -f components/manifests/minikube/ingress.yaml || echo "   ⚠️  Ingress creation failed (controller may still be starting)"
+	@echo "🔑 Granting backend permissions..."
+	@kubectl create clusterrolebinding backend-admin --clusterrole=cluster-admin --serviceaccount=$(NAMESPACE):backend-api --dry-run=client -o yaml | kubectl apply -f -
 	@echo ""
-	@echo "Operator Pod Status:"
-	@oc get pods -n vteam-dev -l app=vteam-operator
+	@echo "✅ Deployment complete!"
 	@echo ""
-	@echo "Recent Operator Events:"
-	@oc get events -n vteam-dev --field-selector involvedObject.kind=Deployment,involvedObject.name=vteam-operator --sort-by='.lastTimestamp' | tail -10
+	@echo "📍 Access URLs:"
+	@echo "   Add to /etc/hosts: 127.0.0.1 vteam.local"
+	@echo "   Frontend: http://vteam.local"
+	@echo "   Backend:  http://vteam.local/api"
+	@echo ""
+	@echo "   Or use NodePort:"
+	@echo "   Frontend: http://$$(minikube ip):30030"
+	@echo "   Backend:  http://$$(minikube ip):30080"
+	@echo ""
+	@echo "🔍 Check status with: make local-status"
 
-dev-test-operator: ## Run only operator tests
-	@echo "Running operator-specific tests..."
-	@bash components/scripts/local-dev/crc-test.sh 2>&1 | grep -A 1 "Operator"
+local-stop: ## Stop vTeam (delete namespace, keep minikube running)
+	@echo "🛑 Stopping vTeam..."
+	@kubectl delete namespace $(NAMESPACE) --ignore-not-found=true
+	@echo "✅ vTeam stopped. Minikube is still running."
+	@echo "   To stop minikube: make local-delete"
+
+local-delete: ## Delete minikube cluster completely
+	@echo "🗑️  Deleting minikube cluster..."
+	@minikube delete
+	@echo "✅ Minikube cluster deleted."
+
+local-status: ## Show status of local deployment
+	@echo "🔍 Minikube status:"
+	@minikube status || echo "❌ Minikube not running"
+	@echo ""
+	@echo "📦 Pods in namespace $(NAMESPACE):"
+	@kubectl get pods -n $(NAMESPACE) 2>/dev/null || echo "❌ No pods found (namespace may not exist)"
+	@echo ""
+	@echo "🌐 Services:"
+	@kubectl get svc -n $(NAMESPACE) 2>/dev/null || echo "❌ No services found"
+	@echo ""
+	@echo "🔗 Ingress:"
+	@kubectl get ingress -n $(NAMESPACE) 2>/dev/null || echo "❌ No ingress found"
+
+local-logs: ## Show logs from backend
+	@kubectl logs -n $(NAMESPACE) -l app=backend-api --tail=50 -f
+
+local-logs-frontend: ## Show frontend logs
+	@kubectl logs -n $(NAMESPACE) -l app=frontend --tail=50 -f
+
+local-logs-operator: ## Show operator logs
+	@kubectl logs -n $(NAMESPACE) -l app=agentic-operator --tail=50 -f
+
+local-logs-all: ## Show logs from all pods
+	@kubectl logs -n $(NAMESPACE) -l 'app in (backend-api,frontend,agentic-operator)' --tail=20 --prefix=true
+
+local-restart: ## Restart all deployments
+	@echo "🔄 Restarting all deployments..."
+	@kubectl rollout restart deployment -n $(NAMESPACE)
+	@kubectl rollout status deployment -n $(NAMESPACE) --timeout=60s
+
+local-restart-backend: ## Restart backend deployment
+	@kubectl rollout restart deployment/backend-api -n $(NAMESPACE)
+	@kubectl rollout status deployment/backend-api -n $(NAMESPACE) --timeout=60s
+
+local-restart-frontend: ## Restart frontend deployment
+	@kubectl rollout restart deployment/frontend -n $(NAMESPACE)
+	@kubectl rollout status deployment/frontend -n $(NAMESPACE) --timeout=60s
+
+local-restart-operator: ## Restart operator deployment
+	@kubectl rollout restart deployment/agentic-operator -n $(NAMESPACE)
+	@kubectl rollout status deployment/agentic-operator -n $(NAMESPACE) --timeout=60s
+
+local-shell-backend: ## Open shell in backend pod
+	@kubectl exec -it -n $(NAMESPACE) $$(kubectl get pod -n $(NAMESPACE) -l app=backend-api -o jsonpath='{.items[0].metadata.name}') -- /bin/sh
+
+local-shell-frontend: ## Open shell in frontend pod
+	@kubectl exec -it -n $(NAMESPACE) $$(kubectl get pod -n $(NAMESPACE) -l app=frontend -o jsonpath='{.items[0].metadata.name}') -- /bin/sh
+
+dev-test: ## Run tests against local deployment
+	@echo "🧪 Testing local deployment..."
+	@echo ""
+	@echo "Testing backend health endpoint..."
+	@curl -f http://$$(minikube ip):30080/health && echo "✅ Backend is healthy" || echo "❌ Backend health check failed"
+	@echo ""
+	@echo "Testing frontend..."
+	@curl -f http://$$(minikube ip):30030 > /dev/null && echo "✅ Frontend is accessible" || echo "❌ Frontend check failed"
+	@echo ""
+	@echo "Checking pods..."
+	@kubectl get pods -n $(NAMESPACE) | grep -E "(backend-api|frontend)" | grep Running && echo "✅ All pods running" || echo "❌ Some pods not running"
+
+# Backward compatibility aliases
+dev-start: local-start ## Alias for local-start (backward compatibility)
+
+dev-stop: local-stop ## Alias for local-stop (backward compatibility)
+
+dev-logs: local-logs ## Alias for local-logs (backward compatibility)
+
+dev-logs-backend: local-logs ## Alias for local-logs (backward compatibility)
+
+dev-logs-frontend: local-logs-frontend ## Alias for local-logs-frontend (backward compatibility)
