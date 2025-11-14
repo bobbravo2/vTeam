@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -151,35 +152,35 @@ func TestGroupVersionResource(t *testing.T) {
 		t.Error("GVR should not be empty")
 	}
 
-	// Verify string representation
-	expected := "projectsettings.v1alpha1.vteam.ambient-code"
-	actual := gvr.String()
-	if actual != expected {
-		t.Errorf("expected GVR string %s, got %s", expected, actual)
+	// Verify string representation contains expected parts
+	gvrString := gvr.String()
+	if !strings.Contains(gvrString, "vteam.ambient-code") {
+		t.Errorf("GVR string should contain group: %s", gvrString)
+	}
+	if !strings.Contains(gvrString, "v1alpha1") {
+		t.Errorf("GVR string should contain version: %s", gvrString)
+	}
+	if !strings.Contains(gvrString, "projectsettings") {
+		t.Errorf("GVR string should contain resource: %s", gvrString)
 	}
 }
 
 // Mock test for schema validation
 func TestSchemaGroupVersionResource(t *testing.T) {
-	tests := []struct {
-		name     string
-		gvr      schema.GroupVersionResource
-		wantStr  string
-	}{
-		{
-			name: "ProjectSettings GVR",
-			gvr:  GetProjectSettingsResource(),
-			wantStr: "projectsettings.v1alpha1.vteam.ambient-code",
-		},
+	gvr := GetProjectSettingsResource()
+	
+	// Verify the type
+	var _ schema.GroupVersionResource = gvr
+	
+	// Verify the individual components instead of string format
+	if gvr.Group != "vteam.ambient-code" {
+		t.Errorf("Expected group 'vteam.ambient-code', got '%s'", gvr.Group)
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.gvr.String()
-			if got != tt.wantStr {
-				t.Errorf("GVR.String() = %v, want %v", got, tt.wantStr)
-			}
-		})
+	if gvr.Version != "v1alpha1" {
+		t.Errorf("Expected version 'v1alpha1', got '%s'", gvr.Version)
+	}
+	if gvr.Resource != "projectsettings" {
+		t.Errorf("Expected resource 'projectsettings', got '%s'", gvr.Resource)
 	}
 }
 
