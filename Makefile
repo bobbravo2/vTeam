@@ -1,4 +1,4 @@
-.PHONY: help setup-env build-all build-frontend build-backend build-operator build-runner deploy clean dev-frontend dev-backend lint test registry-login push-all dev-start dev-stop dev-test dev-logs-operator dev-restart-operator dev-operator-status dev-test-operator e2e-test e2e-setup e2e-clean
+.PHONY: help build-all build-frontend build-backend build-operator build-runner deploy clean registry-login push-all local-up local-down local-clean local-status local-rebuild local-reload-backend local-reload-frontend local-reload-operator test-all local-test-dev local-test-quick local-logs local-logs-backend local-logs-frontend local-logs-operator local-shell local-shell-frontend local-test local-url local-port-forward local-troubleshoot check-minikube check-kubectl dev-test-operator e2e-test e2e-setup e2e-clean
 
 # Default target
 .DEFAULT_GOAL := help
@@ -63,16 +63,6 @@ build-frontend: ## Build frontend image (production)
 	@cd components/frontend && $(CONTAINER_ENGINE) build $(PLATFORM_FLAG) $(BUILD_FLAGS) -t $(FRONTEND_IMAGE) .
 	@echo "$(COLOR_GREEN)✓$(COLOR_RESET) Frontend built: $(FRONTEND_IMAGE)"
 
-# Kubernetes deployment
-deploy: ## Deploy all components to OpenShift (production overlay)
-	@echo "Deploying to OpenShift..."
-	cd components/manifests && ./deploy.sh
-
-# Cleanup
-clean: ## Clean up all Kubernetes resources (production overlay)
-	@echo "Cleaning up Kubernetes resources..."
-	cd components/manifests && ./deploy.sh clean
-
 build-backend: ## Build backend image
 	@echo "$(COLOR_BLUE)▶$(COLOR_RESET) Building backend with $(CONTAINER_ENGINE)..."
 	@cd components/backend && $(CONTAINER_ENGINE) build $(PLATFORM_FLAG) $(BUILD_FLAGS) -t $(BACKEND_IMAGE) .
@@ -128,7 +118,7 @@ local-up: check-minikube check-kubectl ## Start local development environment (m
 	@echo "$(COLOR_BLUE)▶$(COLOR_RESET) Step 7/8: Deploying services..."
 	@kubectl apply -f components/manifests/minikube/backend-deployment.yaml >/dev/null 2>&1
 	@kubectl apply -f components/manifests/minikube/backend-service.yaml >/dev/null 2>&1
-	@kubectl apply -f components/manifests/minikube/frontend-deployment.yaml >/dev/null 2>&1
+	@kubectl apply -f components/manifests/minikube/frontend-deployment-dev.yaml >/dev/null 2>&1
 	@kubectl apply -f components/manifests/minikube/frontend-service.yaml >/dev/null 2>&1
 	@kubectl apply -f components/manifests/minikube/operator-deployment.yaml >/dev/null 2>&1
 	@echo "$(COLOR_BLUE)▶$(COLOR_RESET) Step 8/8: Setting up ingress..."
@@ -187,8 +177,8 @@ local-reload-backend: ## Rebuild and reload backend only
 
 local-reload-frontend: ## Rebuild and reload frontend only
 	@echo "$(COLOR_BLUE)▶$(COLOR_RESET) Rebuilding frontend..."
-	@cd components/frontend && $(CONTAINER_ENGINE) build -t $(FRONTEND_IMAGE) . >/dev/null 2>&1
-	@minikube image load $(FRONTEND_IMAGE) >/dev/null 2>&1
+	@cd components/frontend && $(CONTAINER_ENGINE) build -t vteam-frontend-dev:latest -f Dockerfile.dev . >/dev/null 2>&1
+	@minikube image load vteam-frontend-dev:latest >/dev/null 2>&1
 	@echo "$(COLOR_BLUE)▶$(COLOR_RESET) Restarting frontend..."
 	@kubectl rollout restart deployment/frontend -n $(NAMESPACE) >/dev/null 2>&1
 	@kubectl rollout status deployment/frontend -n $(NAMESPACE) --timeout=60s
@@ -227,6 +217,10 @@ local-test-quick: check-kubectl check-minikube ## Quick smoke test of local envi
 	@curl -sf http://$$(minikube ip):30030 >/dev/null 2>&1 && echo "$(COLOR_GREEN)✓$(COLOR_RESET) Frontend accessible" || (echo "$(COLOR_RED)✗$(COLOR_RESET) Frontend not responding" && exit 1)
 	@echo ""
 	@echo "$(COLOR_GREEN)✓ Quick smoke test passed!$(COLOR_RESET)"
+
+dev-test-operator: ## Run only operator tests
+	@echo "Running operator-specific tests..."
+	@bash components/scripts/local-dev/crc-test.sh 2>&1 | grep -A 1 "Operator"
 
 ##@ Development Tools
 
@@ -315,10 +309,10 @@ check-kubectl: ## Check if kubectl is installed
 
 _build-and-load: ## Internal: Build and load images
 	@$(CONTAINER_ENGINE) build -t $(BACKEND_IMAGE) components/backend >/dev/null 2>&1
-	@$(CONTAINER_ENGINE) build -t $(FRONTEND_IMAGE) components/frontend >/dev/null 2>&1
+	@$(CONTAINER_ENGINE) build -t vteam-frontend-dev:latest -f components/frontend/Dockerfile.dev components/frontend >/dev/null 2>&1
 	@$(CONTAINER_ENGINE) build -t $(OPERATOR_IMAGE) components/operator >/dev/null 2>&1
 	@minikube image load $(BACKEND_IMAGE) >/dev/null 2>&1
-	@minikube image load $(FRONTEND_IMAGE) >/dev/null 2>&1
+	@minikube image load vteam-frontend-dev:latest >/dev/null 2>&1
 	@minikube image load $(OPERATOR_IMAGE) >/dev/null 2>&1
 	@echo "$(COLOR_GREEN)✓$(COLOR_RESET) Images built and loaded"
 
@@ -341,11 +335,8 @@ _show-access-info: ## Internal: Show access information
 	@echo "    Backend:  $(COLOR_BLUE)http://localhost:8080$(COLOR_RESET)"
 	@echo ""
 	@echo "$(COLOR_YELLOW)⚠  SECURITY NOTE:$(COLOR_RESET) Authentication is DISABLED for local development."
-dev-test-operator: ## Run only operator tests
-	@echo "Running operator-specific tests..."
-	@bash components/scripts/local-dev/crc-test.sh 2>&1 | grep -A 1 "Operator"
 
-# E2E Testing with kind
+##@ E2E Testing
 e2e-test: ## Run complete e2e test suite (setup, deploy, test, cleanup)
 	@echo "Running e2e tests..."
 	@# Clean up any existing cluster first
