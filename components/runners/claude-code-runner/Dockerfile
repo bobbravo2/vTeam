@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install system dependencies
+# Install system dependencies including uv
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,19 +10,8 @@ RUN apt-get update && apt-get install -y \
     && npm install -g @anthropic-ai/claude-code \
     && rm -rf /var/lib/apt/lists/*
 
-# Create working directory
-WORKDIR /app
-
-# Copy and install runner-shell package (expects build context at components/runners)
-COPY runner-shell /app/runner-shell
-RUN cd /app/runner-shell && pip install --no-cache-dir .
-
-# Copy claude-runner specific files
-COPY claude-code-runner /app/claude-runner
-
-# Install runner wrapper as a package (pulls dependencies like claude-agent-sdk)
-RUN pip install --no-cache-dir /app/claude-runner \
-    && pip install --no-cache-dir aiofiles
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -31,9 +20,26 @@ ENV RUNNER_TYPE=claude
 ENV HOME=/app
 ENV SHELL=/bin/bash
 ENV TERM=xterm-256color
+ENV UV_SYSTEM_PYTHON=1
+
+# Create working directory
+WORKDIR /app
+
+# Copy runner-shell package first
+COPY runner-shell /app/runner-shell
+
+# Install runner-shell using uv
+RUN cd /app/runner-shell && uv pip install --no-cache .
+
+# Copy claude-runner files including uv.lock
+COPY claude-code-runner/pyproject.toml claude-code-runner/uv.lock /app/claude-runner/
+COPY claude-code-runner/wrapper.py /app/claude-runner/
+
+# Install claude-runner dependencies using uv.lock
+RUN cd /app/claude-runner && uv sync --frozen --no-dev
 
 # OpenShift compatibility
 RUN chmod -R g=u /app && chmod -R g=u /usr/local && chmod g=u /etc/passwd
 
-# Default command - run via runner-shell
-CMD ["python", "/app/claude-runner/wrapper.py"]
+# Default command - run via runner-shell using uv
+CMD ["uv", "run", "--frozen", "/app/claude-runner/wrapper.py"]
